@@ -48,12 +48,13 @@ var mainCmd = &cobra.Command{
             fmt.Printf("%s (%s): %d lines\n", result.FilePath, result.Language, result.Lines)
         }
 
-        summary := counter.Summarize(results)
+        summary, total := counter.Summarize(results)
         fmt.Println("\nSummary by Language:")
         fmt.Println("----------------------")
         for lang, lines := range summary {
             fmt.Printf("%s: %d lines\n", lang, lines)
         }
+        fmt.Printf("\nTotal Lines of Code: %d\n", total)
 
         return nil
     },

@@ -69,11 +69,13 @@ func countNonEmptyLines(content string) int {
 	return count
 }
 
-// Summarize aggregates total lines by language.
-func Summarize(results []FileResult) map[string]int {
+// Summarize aggregates total lines by language and also returns total LOC.
+func Summarize(results []FileResult) (map[string]int, int) {
 	summary := make(map[string]int)
+	total := 0
 	for _, result := range results {
 		summary[result.Language] += result.Lines
+		total += result.Lines
 	}
-	return summary
+	return summary, total
 }
