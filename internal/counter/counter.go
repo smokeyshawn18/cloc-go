@@ -1,4 +1,3 @@
-// Package counter contains logic for counting lines of code and summarizing results.
 package counter
 
 import (
@@ -11,12 +10,46 @@ import (
 
 // FileResult holds the LOC count and language for a single file.
 type FileResult struct {
-	FilePath string
-	Language string
-	Lines    int
+    FilePath string
+    Language string
+    Lines    int
 }
 
-// CountLines counts lines of code in all files in the given directory.
+func shouldSkipDir(dirName string) bool {
+    skipDirs := map[string]struct{}{
+        "node_modules": {},
+        ".git":         {},
+        "vendor":       {},
+        "dist":         {},
+        "next":         {},
+    }
+    _, skip := skipDirs[dirName]
+    return skip
+}
+
+// isSkippedFile checks if the file has an extension that should be skipped.
+func isSkippedFile(fileName string) bool {
+    skipExts := map[string]struct{}{
+        ".json": {},
+		".lock": {}, // e.g. package-lock.json, yarn.lock
+		".txt":  {}, // plain text files
+		".log":  {}, // log files
+		".md":   {}, // markdown files
+		".xml":  {}, // XML files
+		".yml":  {}, // YAML files
+		".yaml": {}, // YAML files
+		".csv":  {}, // CSV files
+		".svg":  {}, // SVG files
+		".ico":  {}, // icon files
+		".gif":  {}, // GIF images
+		
+        // add more extensions here if needed, e.g. ".md", ".lock"
+    }
+    ext := strings.ToLower(filepath.Ext(fileName))
+    _, skip := skipExts[ext]
+    return skip
+}
+
 func CountLines(dir string) ([]FileResult, error) {
     var results []FileResult
 
@@ -25,21 +58,22 @@ func CountLines(dir string) ([]FileResult, error) {
             return err
         }
         if info.IsDir() {
-            // Skip node_modules and other unnecessary directories
             base := filepath.Base(path)
-            if base == "node_modules" || base == ".git" || base == "vendor" {
+            if shouldSkipDir(base) {
                 return filepath.SkipDir
             }
             return nil
         }
 
-        // Detect language based on file extension
+        if isSkippedFile(path) {
+            return nil // Skip files with extensions to be skipped
+        }
+
         language := lang.DetectLanguage(path)
         if language == "Unknown" {
             return nil // Skip unknown file types
         }
 
-        // Read file and count non-empty lines
         content, err := os.ReadFile(path)
         if err != nil {
             return err
@@ -63,24 +97,24 @@ func CountLines(dir string) ([]FileResult, error) {
 
 // countNonEmptyLines counts non-empty, non-whitespace lines in content.
 func countNonEmptyLines(content string) int {
-	lines := strings.Split(content, "\n")
-	count := 0
-	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed != "" {
-			count++
-		}
-	}
-	return count
+    lines := strings.Split(content, "\n")
+    count := 0
+    for _, line := range lines {
+        trimmed := strings.TrimSpace(line)
+        if trimmed != "" {
+            count++
+        }
+    }
+    return count
 }
 
 // Summarize aggregates total lines by language and also returns total LOC.
 func Summarize(results []FileResult) (map[string]int, int) {
-	summary := make(map[string]int)
-	total := 0
-	for _, result := range results {
-		summary[result.Language] += result.Lines
-		total += result.Lines
-	}
-	return summary, total
+    summary := make(map[string]int)
+    total := 0
+    for _, result := range results {
+        summary[result.Language] += result.Lines
+        total += result.Lines
+    }
+    return summary, total
 }
