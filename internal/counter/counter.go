@@ -1,0 +1,79 @@
+// Package counter contains logic for counting lines of code and summarizing results.
+package counter
+
+import (
+	"os"
+	"path/filepath"
+	"strings"
+
+	"cloc-go/internal/lang"
+)
+
+// FileResult holds the LOC count and language for a single file.
+type FileResult struct {
+	FilePath string
+	Language string
+	Lines    int
+}
+
+// CountLines counts lines of code in all files in the given directory.
+func CountLines(dir string) ([]FileResult, error) {
+	var results []FileResult
+
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil // Skip directories
+		}
+
+		// Detect language based on file extension
+		language := lang.DetectLanguage(path)
+		if language == "Unknown" {
+			return nil // Skip unknown file types
+		}
+
+		// Read file and count non-empty lines
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		lines := countNonEmptyLines(string(content))
+
+		results = append(results, FileResult{
+			FilePath: path,
+			Language: language,
+			Lines:    lines,
+		})
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
+}
+
+// countNonEmptyLines counts non-empty, non-whitespace lines in content.
+func countNonEmptyLines(content string) int {
+	lines := strings.Split(content, "\n")
+	count := 0
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if trimmed != "" {
+			count++
+		}
+	}
+	return count
+}
+
+// Summarize aggregates total lines by language.
+func Summarize(results []FileResult) map[string]int {
+	summary := make(map[string]int)
+	for _, result := range results {
+		summary[result.Language] += result.Lines
+	}
+	return summary
+}
