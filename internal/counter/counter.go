@@ -20,25 +20,52 @@ type FileResult struct {
 func CountLines(dir string) ([]FileResult, error) {
 	var results []FileResult
 
+	// Directories to skip
+	skipDirs := map[string]struct{}{
+		".git":         {},
+		"node_modules": {},
+		"vendor":       {},
+		".vscode":      {},
+		"dist":         {},
+		"build":        {},
+		".cache":       {},
+	}
+
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil // Skip directories
+			// Continue on read error
+			return nil
 		}
 
-		// Detect language based on file extension
+		// Skip hidden files and directories
+		base := filepath.Base(path)
+		if strings.HasPrefix(base, ".") && base != ".env" {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		// Skip unwanted directories
+		if info.IsDir() {
+			if _, shouldSkip := skipDirs[base]; shouldSkip {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
+		// Detect language
 		language := lang.DetectLanguage(path)
 		if language == "Unknown" {
-			return nil // Skip unknown file types
+			return nil
 		}
 
 		// Read file and count non-empty lines
 		content, err := os.ReadFile(path)
 		if err != nil {
-			return err
+			return nil // Skip unreadable files
 		}
+
 		lines := countNonEmptyLines(string(content))
 
 		results = append(results, FileResult{
@@ -61,8 +88,7 @@ func countNonEmptyLines(content string) int {
 	lines := strings.Split(content, "\n")
 	count := 0
 	for _, line := range lines {
-		trimmed := strings.TrimSpace(line)
-		if trimmed != "" {
+		if strings.TrimSpace(line) != "" {
 			count++
 		}
 	}
