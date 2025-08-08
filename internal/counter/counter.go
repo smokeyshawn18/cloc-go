@@ -21,7 +21,16 @@ func shouldSkipDir(dirName string) bool {
         ".git":         {},
         "vendor":       {},
         "dist":         {},
-        ".next":         {},
+        ".next":        {},
+        "env":          {},
+        "build":        {},
+        "out":          {},
+        "coverage":     {},
+        "tmp":          {},
+        "temp":         {},
+        "logs":         {},
+        "log":          {},
+        "cache":        {},
     }
     _, skip := skipDirs[dirName]
     return skip
