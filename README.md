@@ -14,7 +14,7 @@ A lightweight command-line tool written in Go to count lines of code (LOC) in a 
 
 1. **Download and Install**:
    ```bash
-   curl -sSL https://raw.githubusercontent.com/yourusername/cloc-go/main/install.sh | bash
+   curl -sSL https://raw.githubusercontent.com/smokeyshawn18/cloc-go/main/install.sh | bash
    ```
 
 Usage
