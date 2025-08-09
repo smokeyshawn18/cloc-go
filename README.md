@@ -27,13 +27,7 @@ cloc-go [directory]
 
 Development
 
-Prerequisites
 
-Go 1.21 or later
-
-Git
-
-zip, curl, unzip (for building and installing)
 
 Build
 
