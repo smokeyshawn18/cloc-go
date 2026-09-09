@@ -40,6 +40,8 @@ func DetectLanguage(filePath string) string {
 		return "PHP"
 	case ".swift":
 		return "Swift"
+	case ".cs":
+		return "C#"
 	case ".rs":
 		return "Rust"
 	default:
