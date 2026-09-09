@@ -4,7 +4,7 @@
 set -e  # Exit on any error
 
 REPO="smokeyshawn18/cloc-go"
-VERSION="v1.0.0"
+VERSION="v1.0.1"
 BINARY_NAME="cloc-go"
 
 echo "📦 Installing $BINARY_NAME from $REPO (version $VERSION)..."
