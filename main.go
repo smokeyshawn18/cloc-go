@@ -9,7 +9,7 @@ import (
 )
 
 var (
-    version = "v1.0.0" // define your version here
+    version = "v1.0.1"
 
     outputFormat string
     showVersion  bool
