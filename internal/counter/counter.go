@@ -31,6 +31,7 @@ func shouldSkipDir(dirName string) bool {
         "logs":         {},
         "log":          {},
         "cache":        {},
+        "venv":        {},
     }
     _, skip := skipDirs[dirName]
     return skip
